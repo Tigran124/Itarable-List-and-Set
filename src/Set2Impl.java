@@ -5,9 +5,10 @@ import java.util.List;
 public class Set2Impl<T> implements Set<T> {
     List<List<T>> container = new ArrayList<>();
     int size = 0;
-    int arraySize = 4;
+    int arraySize;
 
-    public Set2Impl() {
+    public Set2Impl(int arraySize) {
+        this.arraySize = arraySize;
         for (int i = 0; i < arraySize; i++) {
             container.add(new LinkedList<>());
         }
@@ -24,28 +25,28 @@ public class Set2Impl<T> implements Set<T> {
     }
 
 
-    public boolean isFull() {
+    public void isFull() {
         for (int i = 0; i < arraySize; i++) {
-            if (container.get(i).size()== 4) {
+            if (container.get(i).size() == 4) {
                 enlargeList();
             }
         }
-        return false;
     }
 
     public void enlargeList() {
-        int tempListCount = arraySize;
-        this.arraySize = (int) Math.pow(arraySize,2);
-        List<List<T>> largeContainer = new ArrayList<>();
-        for (int i = 0; i < tempListCount; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (!container.get(i).isEmpty()) {
-                    int hashCodeOfElement = container.get(i).get(j).hashCode();
-                    List<T> listOfHashIndex = container.get(hashCodeOfElement % tempListCount);
-                    List<T> largeListOfHashIndex = largeContainer.get(hashCodeOfElement % arraySize);
+        int tempArrSize = (int) Math.pow(arraySize,2);
+        Set2Impl<T> tempSet = new Set2Impl<>(tempArrSize);
+        for (int i = 0; i < arraySize; i++) {
+            if (!container.get(i).isEmpty()) {
+                for (T element:container.get(i)) {
+                    int hashCodeOfElement = element.hashCode();
+                    List<T> largeHashList = tempSet.container.get(hashCodeOfElement % tempArrSize);
+                    largeHashList.add(element);
                 }
             }
         }
+        this.container = tempSet.container;
+        this.arraySize = tempArrSize;
     }
 
     @Override
@@ -57,6 +58,7 @@ public class Set2Impl<T> implements Set<T> {
 
     @Override
     public boolean add(T element) {
+        isFull();
         int hashCodeOfElement = element.hashCode();
         List<T> listOfHashIndex = container.get(hashCodeOfElement % arraySize);
         if (!listOfHashIndex.contains(element)) {
@@ -65,6 +67,19 @@ public class Set2Impl<T> implements Set<T> {
             return true;
         }
         return false;
+    }
+
+    public String toString() {
+        String toString = "";
+        System.out.println(arraySize);
+        for (int i = 0; i < arraySize; i++) {
+            if (!container.get(i).isEmpty()) {
+                for (T element:container.get(i)) {
+                    toString += element+",";
+                }
+            }
+        }
+        return toString;
     }
 
     @Override
